@@ -3,7 +3,7 @@
 //FSM for Task2 of Lab5
 //Outputs signals like enables and clear
 //but also outputs done and ZN flag
-module FSM(
+module Task2FSM(
     output logic prod_en,
     output logic prod_clr,
     output logic a_en,
@@ -23,7 +23,7 @@ module FSM(
     input logic N_flag,
     input logic Z_flag,
     input logic clock,
-    input logic reset
+    input logic reset,
     input logic exit_loop);
 
     typedef enum logic [2:0] {
@@ -45,6 +45,20 @@ module FSM(
     end
 
     always_comb begin
+        prod_en = 1'b0;
+        prod_clr = 1'b0;
+        a_en = 1'b0;
+        a_ld = 1'b0;
+        b_en = 1'b0;
+        b_ld = 1'b0;
+        ct_en = 1'b0;
+        ct_clear = 1'b0;
+        ct_ld = 1'b0;
+        prod_sel = 1'b0;
+        a_sel = 1'b0;
+        b_sel = 1'b0;
+        done = 1'b0;
+        ZN_flags = 2'b00;
         nextState = currState;
 
         case(currState)
