@@ -59,7 +59,7 @@ STORE:
 
     STOP
 
-; data
+;data
 
     .ORG $B010
 A:  .DW  $0003
