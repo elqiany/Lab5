@@ -16,8 +16,8 @@ endmodule: Comparator
 // w-bit magnitude comparator
 module MagComp
  #(parameter WIDTH= 8)
-  (input logic  [WIDTH-1:0] A, 
-   input logic  [WIDTH-1:0] B,
+  (input logic signed [WIDTH-1:0] A, 
+   input logic signed [WIDTH-1:0] B,
    output logic             AltB, 
    output logic             AeqB,
    output logic             AgtB);
