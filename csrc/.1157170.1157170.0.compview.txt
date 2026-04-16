@@ -1,0 +1,9 @@
+{"vcs1":{"timestamp_begin":1776273521.608443396, "rt":4.22, "ut":0.46, "st":0.33}}
+{"vcselab":{"timestamp_begin":1776273526.002498183, "rt":1.03, "ut":0.54, "st":0.25}}
+{"link":{"timestamp_begin":1776273527.170709322, "rt":0.65, "ut":0.23, "st":0.31}}
+{"SNPS_VCS_INTERNAL_ROOT_START_TIME": 1776273520.869020662}
+{"VCS_COMP_START_TIME": 1776273520.869020662}
+{"VCS_COMP_END_TIME": 1776273527.998542917}
+{"VCS_USER_OPTIONS": "-sverilog Task2FSM.sv Multiplier.sv Multiplier_test.sv library.sv"}
+{"vcs1": {"peak_mem": 1157383}}
+{"stitch_vcselab": {"peak_mem": 1157445}}

@@ -4,8 +4,8 @@
 // w-bit Comparator (non-magnitude variety)
 module Comparator
  #(parameter WIDTH = 8)
-  (input logic  [WIDTH-1:0] A, 
-   input logic  [WIDTH-1:0] B, 
+  (input logic  [WIDTH-1:0] A,
+   input logic  [WIDTH-1:0] B,
    output logic             AeqB);
 
   assign AeqB = (A == B);
@@ -16,9 +16,9 @@ endmodule: Comparator
 // w-bit magnitude comparator
 module MagComp
  #(parameter WIDTH= 8)
-  (input logic signed [WIDTH-1:0] A, 
+  (input logic signed [WIDTH-1:0] A,
    input logic signed [WIDTH-1:0] B,
-   output logic             AltB, 
+   output logic             AltB,
    output logic             AeqB,
    output logic             AgtB);
 
@@ -33,7 +33,7 @@ endmodule: MagComp
 module Adder
  #(parameter WIDTH= 8)
   (input  logic             cin,
-   input  logic [WIDTH-1:0] A, B, 
+   input  logic [WIDTH-1:0] A, B,
    output logic             cout,
    output logic [WIDTH-1:0] sum);
 
@@ -45,9 +45,9 @@ endmodule : Adder
 // w-bit Subtracter
 module Subtracter
  #(parameter WIDTH= 8)
-  (input  logic             bin,        
-   input  logic [WIDTH-1:0] A, B, 
-   output logic             bout,       
+  (input  logic             bin,
+   input  logic [WIDTH-1:0] A, B,
+   output logic             bout,
    output logic [WIDTH-1:0] diff);
 
   assign {bout, diff} = A - B - bin;
@@ -58,8 +58,8 @@ endmodule : Subtracter
 // w:1 Multiplexer
 module Multiplexer
  #(parameter WIDTH= 8)
-  (input logic  [WIDTH-1:0]         I, 
-   input logic  [$clog2(WIDTH)-1:0] S, 
+  (input logic  [WIDTH-1:0]         I,
+   input logic  [$clog2(WIDTH)-1:0] S,
    output logic                     Y);
 
   assign Y = I[S];
@@ -70,9 +70,9 @@ endmodule: Multiplexer
 // 2:1 multiplexer (for w-bit values)
 module Mux2to1
  #(parameter WIDTH= 8)
-  (input logic  [WIDTH-1:0] I0, 
+  (input logic  [WIDTH-1:0] I0,
    input logic  [WIDTH-1:0] I1,
-   input logic              S, 
+   input logic              S,
    output logic [WIDTH-1:0] Y);
 
   assign Y = (S == 1'b0) ? I0 : I1;
@@ -83,13 +83,13 @@ endmodule: Mux2to1
 // log2(WIDTH):w Decoder With Enable
 module Decoder
  #(parameter WIDTH = 8)
-  (input logic  [$clog2(WIDTH)-1:0] I, 
+  (input logic  [$clog2(WIDTH)-1:0] I,
    input logic                      en,
    output logic [WIDTH-1:0]         D);
 
   always_comb begin
     D = 8'b00000000;
-    if (en == 1'b1) 
+    if (en == 1'b1)
       D[I] = 1'b1;
   end
 
@@ -109,10 +109,10 @@ module DFlipFlop
       Q <= 1'b1;
     else if (reset_L == 1'b0)
       Q <= 1'b0;
-    else 
+    else
       Q <= D;
   end
-  
+
 endmodule : DFlipFlop
 
 
@@ -130,7 +130,7 @@ module Register
       if (clear == 1'b1)
         Q <= '0;
       else
-        Q <= D;          
+        Q <= D;
     end
   end
 
@@ -142,9 +142,9 @@ module Counter
  #(parameter WIDTH = 8)
   (input  logic             en,
    input  logic             clear,
-   input  logic             load, 
+   input  logic             load,
    input  logic             up,
-   input  logic [WIDTH-1:0] D, 
+   input  logic [WIDTH-1:0] D,
    input  logic             clock,
    output logic [WIDTH-1:0] Q);
 
@@ -159,7 +159,7 @@ module Counter
           Q <= Q - 1;
         else // up == 1'b1
           Q <= Q + 1;
-      end       
+      end
     end
   end
 
@@ -181,7 +181,7 @@ module ShiftRegisterSIPO
         Q <= {Q[WIDTH-2:0], serial};
       end
       else begin // left == 1'b0 (right)
-        Q <= {serial, Q[WIDTH-1:1]}; 
+        Q <= {serial, Q[WIDTH-1:1]};
       end
     end
   end
@@ -229,7 +229,7 @@ module BarrelShiftRegister
     if (en == 1'b1) begin
       if (load == 1'b1)
         Q <= D;
-      else 
+      else
         Q <= Q << by;
     end
   end
@@ -267,7 +267,7 @@ module BusDriver
 endmodule : BusDriver
 
 
-// Memory 
+// Memory
 module Memory
  #(parameter DW = 16,
               W = 256,
@@ -279,7 +279,7 @@ module Memory
   logic [DW-1:0] M[W];
   logic [DW-1:0] rData;
 
-  assign data = (re == 1'b1) ? rData : 'bz; 
+  assign data = (re == 1'b1) ? rData : 'bz;
 
   always_ff @ (posedge clock) begin
     if (we)

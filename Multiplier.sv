@@ -1,11 +1,11 @@
-`default_nettype none
+//`default_nettype none
 
-// Muliplication Coprocessor 
+// Muliplication Coprocessor
 module Multiplier (
   input logic                start, reset, clock,
   input logic  signed [7:0]  a, b,
   output logic               done,
-  output logic        [1:0]  ZN_flags,  
+  output logic        [1:0]  ZN_flags,
   output logic signed [15:0] out);
 
 
@@ -15,23 +15,23 @@ module Multiplier (
   // Control points
   logic prod_en, prod_clr, prod_sel;
   logic a_en, a_ld, a_sel;
-  logic b_en, b_ld, b_sel; 
+  logic b_en, b_ld, b_sel;
   logic ct_en, ct_clr, ct_ld;
-  
-  // Status points 
+
+  // Status points
   logic lsbB1, msbB1, exit_loop, N_flag, Z_flag;
 
   // Datapath
 
   // Track the number of bits that have been processed
   logic [15:0] bitCount;
-  Counter #(16) bitTracker (.en(ct_en), .clear(ct_clr), .load(ct_ld), 
+  Counter #(16) bitTracker (.en(ct_en), .clear(ct_clr), .load(ct_ld),
                             .up(1'b0), .D(16'd8), .clock(clock), .Q(bitCount));
   Comparator #(16) loopGuard (.A(bitCount), .B(16'd0), .AeqB(exit_loop));
 
   // Handles B
   logic signed [15:0] B_pos, B_neg, B_inv, B_abs, B1, B2, B_shift;
-  
+
   // Converts B from 8-bit to 16-bit
   assign B_pos = {8'b0000_0000, b};
   assign B_neg = {8'b1111_1111, b};
@@ -46,15 +46,15 @@ module Multiplier (
   Mux2to1 #(16) BSel (.I0(B_pos), .I1(B_abs), .Y(B1), .S(msbB1));
   Mux2to1 #(16) BShiftSel (.I0(B1), .I1(B2), .Y(B_shift), .S(b_sel));
 
-  ShiftRegisterPIPO #(16) BShift (.en(b_en), .left(1'b0), .load(b_ld), 
+  ShiftRegisterPIPO #(16) BShift (.en(b_en), .left(1'b0), .load(b_ld),
                                   .D(B_shift), .clock(clock), .Q(B2));
-  
+
   // Determine the least significant bit of B currently
   assign lsbB1 = B2[0];
 
   // Handles A and calculating the product
   logic signed [15:0] A_pos, A_neg, A1, A2, A_shift;
-  
+
   // Converts A from 8-bit to 16-bit
   assign A_pos = {8'b0000_0000, a};
   assign A_neg = {8'b1111_1111, a};
@@ -66,27 +66,27 @@ module Multiplier (
   Mux2to1 #(16) ASel (.I0(A_pos), .I1(A_neg), .Y(A1), .S(msbA1));
   Mux2to1 #(16) AShiftSel (.I0(A1), .I1(A2), .Y(A_shift), .S(a_sel));
 
-  ShiftRegisterPIPO #(16) AShift (.en(a_en), .left(1'b1), .load(a_ld), 
+  ShiftRegisterPIPO #(16) AShift (.en(a_en), .left(1'b1), .load(a_ld),
                                   .D(A_shift), .clock(clock), .Q(A2));
 
   // Stores the updating product
   logic signed [15:0] prod_D, prod_Q, prod_new;
   Mux2to1 #(16) PSel (.I0(16'd0), .I1(prod_new), .Y(prod_D), .S(prod_sel));
-  Register #(16) PStore (.en(prod_en), .clear(prod_clr), .D(prod_D), 
+  Register #(16) PStore (.en(prod_en), .clear(prod_clr), .D(prod_D),
                          .clock(clock), .Q(prod_Q));
   Adder #(16) PTrack (.cin(1'b0), .A(prod_Q), .B(A2), .sum(prod_new), .cout());
 
   // Handles negating the product if B was originally negative
   logic signed [15:0] prod_Q_not, prod_Q_negated;
   assign prod_Q_not = ~prod_Q;
-  Adder #(16) PNegate (.cin(1'b0), .A(prod_Q_not), .B(16'd1), 
+  Adder #(16) PNegate (.cin(1'b0), .A(prod_Q_not), .B(16'd1),
                        .sum(prod_Q_negated), .cout());
-  Mux2to1 #(16) finalPSel (.I0(prod_Q), .I1(prod_Q_negated), 
+  Mux2to1 #(16) finalPSel (.I0(prod_Q), .I1(prod_Q_negated),
                            .Y(out), .S(msbB1));
 
   // Sets the flags bits based on the results of the multiplication
-  MagComp #(16) flags (.A(out), .B(16'd0), .AltB(N_flag), 
-                       .AeqB(Z_flag), .AgtB());                    
+  MagComp #(16) flags (.A(out), .B(16'd0), .AltB(N_flag),
+                       .AeqB(Z_flag), .AgtB());
 
 endmodule : Multiplier
 
@@ -117,6 +117,7 @@ module MultiplierFSM(
     input logic reset,
     input logic exit_loop);
 
+    //state defn
     typedef enum logic [2:0] {
         IDLE = 3'b000,
         CLEAR = 3'b001,
@@ -137,14 +138,14 @@ module MultiplierFSM(
             currState <= nextState;
     end
 
-    // next state logic 
+    // next state logic
     always_comb begin
       nextState = currState;
       case(currState)
         IDLE: begin
           if (start)
             nextState = CLEAR;
-          else 
+          else
             nextState = IDLE;
         end
 
@@ -155,7 +156,7 @@ module MultiplierFSM(
         CHECK: begin
           if (lsbB1)
             nextState = ADD;
-          else 
+          else
             nextState = SHIFT;
         end
 
@@ -166,21 +167,21 @@ module MultiplierFSM(
         EXIT: begin
           if (exit_loop)
             nextState = FINISH;
-          else 
+          else
             nextState = CHECK;
         end
 
         FINISH: begin
           if (start)
             nextState = FINISH;
-          else 
+          else
             nextState = IDLE;
         end
         default: nextState = IDLE;
       endcase
     end
 
-    // output generation logic 
+    // output generation logic
     always_comb begin
       prod_en   = 1'b0;
       prod_clr  = 1'b0;
@@ -277,7 +278,7 @@ module MultiplierFSM(
           ct_ld = 1'b0;
           done = 1'b0;
         end
-        
+
         // Shifts both a and b & decrements the counter
         SHIFT: begin
           prod_en = 1'b0;

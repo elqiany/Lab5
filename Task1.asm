@@ -1,4 +1,4 @@
-; Performs multiplication on RISC240
+;Performs multiplication on RISC240
 
     .ORG $0100
 
@@ -53,7 +53,7 @@ SKIP_ADD
 
 DONE
     ;if original B neg -> neg res
-    OR r5, r5, r0 
+    OR r5, r5, r0
     BRZ STORE;
     NOT r3, r3
     ADDI r3, r3, $0001
