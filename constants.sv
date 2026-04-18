@@ -163,9 +163,19 @@ typedef enum logic [6:0] {
    BRNZ2  = 7'b110_1110,
    BRNZ3  = 7'b110_1111,
 
-   UNDEF  = 7'bxxx_xxxx
+// Added MUL and MULI
+   MUL    = 7'b011_0000,
 
+   MUL1   = 7'b011_0001,
+   MUL2   = 7'b011_0010,
+   MULI   = 7'b011_0011,
+   MULI1  = 7'b011_0100,
+   MULI2  = 7'b011_0101,
+   MULI3  = 7'b011_0110,
+   MULI4  = 7'b011_0111,
+   UNDEF  = 7'bxxx_xxxx
 } opcode_t;
+
 
 typedef struct packed
 {

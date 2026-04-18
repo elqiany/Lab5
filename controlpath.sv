@@ -4,9 +4,9 @@
  * Modules contained: controlpath
  *
  * The condition codes are ordered as ZCNV
- * 
+ *
  * Changelog:
- * 9 June 1999 : Added stack pointer 
+ * 9 June 1999 : Added stack pointer
  * 4/16/2001: Reverted to base code (verBurg)
  * 4/16/2001: Added the "addsp" instruction. (verBurg)
  * 11/26/06: Removed old Altera-specific code that Xilinx tool had trouble with (P. Milder)
@@ -17,7 +17,7 @@
  * 18 Oct 2009: Changed some constant names (mcbender)
  * 23 Oct 2009: Renamed from paths.v to controlpath.v, moved datapath to datapath.v
  * 13 Oct 2010: Updated always to always_comb and always_ff. Removed #1 before finish,
- *              as timing controls not allowed in always_comb. Renamed to .sv. (abeera)    
+ *              as timing controls not allowed in always_comb. Renamed to .sv. (abeera)
  * 17 Oct 2010: Updated to use enums instead of define's (iclanton)
  * 24 Oct 2010: Updated to use struct (abeera)
  * 9  Nov 2010: Slightly modified variable names (abeera)
@@ -34,7 +34,7 @@
 /*
  * module controlpath
  *
- * This is the FSM for the RISC240.  Any modifications to the ISA 
+ * This is the FSM for the RISC240.  Any modifications to the ISA
  * or even the base implementation will most likely affect this module.
  * (Hint, hint.)
  */
@@ -45,21 +45,29 @@ module controlpath (
    output opcode_t currState,
    output opcode_t nextState,
    input             clock,
-   input             reset_L);
-   
+   input             reset_L
+   input             mul_done
+   output            mul_start
+   output            mult_result_sel //choose alu or mult
+   output            mul_srcB_imm //unsure.. choose input
+   input            [1:0] mul_ZN);
+   //Z_flag? input ? and N_flag?
+
    logic Z, C, N, V;
    assign {Z, C, N, V} = CCin;
-  
+
    always_ff @(posedge clock or negedge reset_L)
      if (~reset_L)
        currState <= FETCH;
      else
        currState <= nextState;
 
-   // order of control points: 
+   // order of control points:
    // {ALU fn, AmuxSel, BmuxSel, DestDecode, CCLoad, RE, WE}
 
    always_comb begin
+       mul_start = 1'b0;
+
       case (currState)
         FETCH: begin
            out = {F_A, MUX_PC, 2'bxx, DEST_MAR, NO_LOAD, NO_RD, NO_WR};
@@ -114,9 +122,9 @@ module controlpath (
         end
         BRN: begin
            out = {F_A, MUX_PC,2'bxx, DEST_MAR, NO_LOAD, NO_RD, NO_WR};
-           if (N) 
+           if (N)
              nextState = BRN2;
-           else 
+           else
              nextState = BRN1;
         end
         BRN1: begin
@@ -133,9 +141,9 @@ module controlpath (
         end
         BRZ: begin
            out = {F_A, MUX_PC,2'bxx, DEST_MAR, NO_LOAD, NO_RD, NO_WR};
-           if (Z) 
+           if (Z)
              nextState = BRZ2;
-           else 
+           else
              nextState = BRZ1;
         end
         BRZ1: begin
@@ -149,12 +157,12 @@ module controlpath (
         BRZ3: begin
            out = {F_A, MUX_MDR,2'bxx, DEST_PC, NO_LOAD, NO_RD, NO_WR};
            nextState = FETCH;
-        end       
+        end
         BRC: begin
            out = {F_A, MUX_PC,2'bxx, DEST_MAR, NO_LOAD, NO_RD, NO_WR};
-           if (C) 
+           if (C)
              nextState = BRC2;
-           else 
+           else
              nextState = BRC1;
         end
         BRC1: begin
@@ -171,9 +179,9 @@ module controlpath (
         end
         BRV: begin
            out = {F_A, MUX_PC,2'bxx, DEST_MAR, NO_LOAD, NO_RD, NO_WR};
-           if (V) 
+           if (V)
              nextState = BRV2;
-           else 
+           else
              nextState = BRV1;
         end
         BRV1: begin
@@ -187,7 +195,7 @@ module controlpath (
         BRV3: begin
            out = {F_A, MUX_MDR,2'bxx, DEST_PC, NO_LOAD, NO_RD, NO_WR};
            nextState = FETCH;
-        end 
+        end
         BRNZ: begin
             out = {F_A, MUX_PC, 2'bxx, DEST_MAR, NO_LOAD, NO_RD, NO_WR};
             if(N | Z)
@@ -354,6 +362,55 @@ module controlpath (
         SW4: begin
            out = {4'bxxxx, 2'bxx, 2'bxx, DEST_NONE, NO_LOAD, NO_RD, MEM_WR};
            nextState = FETCH;
+        end
+        MUL: begin
+            out = {4'bxxxx, 2'bxx, 2'bxx, DEST_NONE, LOAD_CC, NO_RD, NO_WR);
+            mul_start = 1'b1;
+            nextState = MUL1;
+        end
+        MUL1: begin
+            out = {4'bxxxx, 2'bxx, 2'bxx, DEST_NONE, NO_LOAD, NO_RD, NO_WR};
+            mul_start = 1'b0;
+            if (mul_done)
+                nextState = MUL2;
+            else
+                nextState = MUL1;
+        end
+        MUL2: begin
+            out = {F_A, 2'bxx, 2'bxx, DEST_REG, LOAD_CC, NO_RD, NO_WR};
+            mul_result_sel = 1'b1;
+            nextState = FETCH;
+        end
+
+        MULI: begin
+            out = {F_A, MUX_PC, 2'bxx, DEST_MAR, NO_LOAD, NO_RD, NO_WR};
+            nextState = MULI1;
+        end
+
+        MULI1: begin
+            out = {F_A_PLUS_2, MUX_PC, 2'bxx, DEST_PC, NO_LOAD, MEM_RD, NO_WR};
+            nextState = MULI;
+        end
+
+        MULI2: begin
+            out = {4'bxxxx, 2'bxx, 2'bxx, DEST_NONE, NO_LOAD, NO_RD, NO_WR};
+            mul_start = 1'b1;
+            nextState = MULI3;
+        end
+
+        MULI3: begin
+            out = {4'bxxxx, 2'bxx, 2'bxx, DEST_NONE, NO_LOAD, NO_RD, NO_WR};
+            mul_start = 1'b0;
+            if (mul_done)
+                nextState = MULI4;
+            else
+                nextState = MULI3;
+        end
+
+        MULI4: begin
+            out = {F_A, 2'bxx, 2'bxx, DEST_REG, LOAD_CC, NO_RD, NO_WR};
+            mul_result_sel = 1'b1;
+            nextState = FETCH;
         end
         default: begin
            out = 14'bx;
