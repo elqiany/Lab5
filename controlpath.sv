@@ -47,9 +47,8 @@ module controlpath (
    input             clock,
    input             reset_L
    input             mul_done
-   output            mul_start
-   output            mult_result_sel //choose alu or mult
-   output            mul_srcB_imm //unsure.. choose input
+   output logic      mul_start
+   output logic      mul_result_sel //choose alu or mult
    input            [1:0] mul_ZN);
    //Z_flag? input ? and N_flag?
 
@@ -67,6 +66,7 @@ module controlpath (
 
    always_comb begin
        mul_start = 1'b0;
+       mul_result_sel = 1'b0;
 
       case (currState)
         FETCH: begin
@@ -363,8 +363,9 @@ module controlpath (
            out = {4'bxxxx, 2'bxx, 2'bxx, DEST_NONE, NO_LOAD, NO_RD, MEM_WR};
            nextState = FETCH;
         end
+        //added mul and muli
         MUL: begin
-            out = {4'bxxxx, 2'bxx, 2'bxx, DEST_NONE, LOAD_CC, NO_RD, NO_WR);
+            out = {4'bxxxx, 2'bxx, 2'bxx, DEST_NONE, NO_LOAD, NO_RD, NO_WR);
             mul_start = 1'b1;
             nextState = MUL1;
         end
@@ -389,7 +390,7 @@ module controlpath (
 
         MULI1: begin
             out = {F_A_PLUS_2, MUX_PC, 2'bxx, DEST_PC, NO_LOAD, MEM_RD, NO_WR};
-            nextState = MULI;
+            nextState = MULI2;
         end
 
         MULI2: begin
