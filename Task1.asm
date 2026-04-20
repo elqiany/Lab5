@@ -68,7 +68,7 @@ STORE
 ; data
 
     .ORG $B010
-A   .DW  $007F
-B   .DW  $FF80
+A   .DW  $0000
+B   .DW  $0000
 
 
