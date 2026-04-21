@@ -26,5 +26,5 @@ MUL .DW $60CA
 ;data
 
     .ORG $B010
-A   .DW  $0003
-B   .DW  $0004
+A   .DW  $000C
+B   .DW  $0005

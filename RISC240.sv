@@ -122,6 +122,24 @@ module RISC240_top();
                     .we_L(cPts.we_L),
                     .clock);
 
+   // MMIO interface
+   // Make sure to uncomment before trying MMIO
+   logic mmio_res_en;
+   logic [15:0] mmio_res;
+
+   assign mmio_res_en = (~cPts.we_L) && (memAddr == 16'hB000);
+   Register #(16) mmioReg (.en(mmio_res_en), .clear(1'b0), .D(dataBus), 
+                           .clock(clock), .Q(mmio_res));
+
+   logic mmio_A_en, mmio_B_en;
+   logic [15:0] mmio_A, mmio_B;
+
+   assign mmio_A_en = (~cPts.re_L) && (memAddr == 16'hB010);
+   assign mmio_B_en = (~cPts.re_L) && (memAddr == 16'hB012);
+   BusDriver #(16) mmioA (.en(mmio_A_en), .data(mmio_A), 
+                          .buff(), .bus(dataBus));
+   BusDriver #(16) mmioB (.en(mmio_B_en), .data(mmio_B), 
+                          .buff(), .bus(dataBus));
 
 /////////////////////
 // CLOCK AND RESET //
@@ -173,6 +191,10 @@ module RISC240_top();
              end
     endcase
   end
+  // Assign input A and B based on switch values
+  // Make sure to uncomment before trying MMIO
+  assign mmio_A = {{8{SW[7]}}, SW[7:0]};
+  assign mmio_B = {8'd0 ,2'b00, SW[13:8]};
   SevenSegmentControl ssc(
                          .HEX7(HEX7),
                          .HEX6(HEX6),
@@ -214,6 +236,8 @@ module RISC240_top();
   always_comb begin
    LD[15] = ~cPts.re_L;
    LD[14] = ~cPts.we_L;
+   // Make sure to uncomment before trying MMIO
+   LD[13:0] = mmio_res[13:0];  // display result on LEDs
   end
 
 `else
