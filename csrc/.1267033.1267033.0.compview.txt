@@ -1,7 +1,0 @@
-Command exited with non-zero status 255
-{"vcs1":{"timestamp_begin":1776292552.082340901, "rt":0.32, "ut":0.16, "st":0.09}}
-{"SNPS_VCS_INTERNAL_ROOT_START_TIME": 1776292550.940724369}
-{"VCS_COMP_START_TIME": 1776292550.940724369}
-{"VCS_COMP_END_TIME": 1776292552.562650511}
-{"VCS_USER_OPTIONS": "-sverilog alu.sv constants.sv controlpath.sv datapath.sv library.sv memory.sv MultiplierFSM.sv Multiplier.sv Multiplier_test.sv regfile.sv RISC240.sv SSegDisplayDriver.sv Task2FSM.sv"}
-{"vcs1": {"peak_mem": 1267480}}
