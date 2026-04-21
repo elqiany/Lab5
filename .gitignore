@@ -1,0 +1,27 @@
+# --- Hardware Development Ignore List ---
+# Vivado/VCS workspace and logs
+*.log
+*.jou
+*.str
+*.vdi
+.Xil/
+
+# Generated Project Data (Can be rebuilt from source)
+*.cache/
+*.hw/
+*.ip_user_files/
+*.runs/
+*.sim/
+/simv
+/simv.daidir/
+/csrc/
+ucli.key
+
+# Editor temporary files
+*.swp
+*.swo
+.*.sw?
+
+# OS junk
+.DS_Store
+Thumbs.db

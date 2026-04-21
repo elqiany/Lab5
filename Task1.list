@@ -1,0 +1,52 @@
+addr data   label     opcode  operands
+---- ----  --------   ------  --------
+0100 3100             LI      R4      
+0102 B010                     $B010   
+0104 2860             LW      R1 R4   
+0106 0000                     $0      
+0108 3100             LI      R4      
+010A B012                     $B012   
+010C 28A0             LW      R2 R4   
+010E 0000                     $0      
+0110 30C0             LI      R3      
+0112 0000                     $0000   
+0114 2150             MV      R5 R2   
+0116 3180             LI      R6      
+0118 8000                     $8000   
+011A 916E             AND     R5 R5 R6
+011C C800             BRZ             
+011E 0126                     CHECK   
+0120 8090             NOT     R2 R2   
+0122 3090             ADDI    R2 R2   
+0124 0001                     $1      
+0126 3180             LI      R6      
+0128 0008                     $0008   
+012A 31C0             LI      R7      
+012C 0001                     $0001   
+012E 91D7             AND     R7 R2 R7
+0130 C800             BRZ             
+0132 0136                     SKIP_ADD
+0134 00D9             ADD     R3 R3 R1
+0136 E290             SRLI    R2 R2   
+0138 0001                     $0001   
+013A C248             SLLI    R1 R1   
+013C 0001                     $0001   
+013E 31B0             ADDI    R6 R6   
+0140 FFFF                     $FFFF   
+0142 C800             BRZ             
+0144 014A                     DONE    
+0146 F800             BRA             
+0148 012A                     LOOP    
+014A A168             OR      R5 R5 R0
+014C C800             BRZ             
+014E 0156                     STORE   
+0150 80D8             NOT     R3 R3   
+0152 30D8             ADDI    R3 R3   
+0154 0001                     $0001   
+0156 3100             LI      R4      
+0158 B000                     $B000   
+015A 3823             SW      R4 R3   
+015C 0000                     $0000   
+015E FE00             STOP            
+B010 007F  A          .DW     $007F   
+B012 FF80  B          .DW     $FF80   
